@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 const hotelsRoute = require('./routes/hotels');
 const authRoute = require('./routes/auth');
 const adminRoute = require('./routes/admin');
+const blogsRoute = require('./routes/blogs');
 
 dotenv.config();
 const app = express();
@@ -19,6 +20,7 @@ app.use('/api/hotels', hotelsRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/admin', adminRoute);
 app.use('/api/bookings', require('./routes/bookings'));
+app.use('/api/blogs', blogsRoute);
 
 app.get('/', (req, res) => res.send('MERN Hotel API'));
 

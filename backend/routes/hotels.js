@@ -1,11 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/hotelsController');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 
+// public
 router.get('/', controller.getAll);
 router.get('/:id', controller.getById);
-router.post('/', controller.create);
-router.put('/:id', controller.update);
-router.delete('/:id', controller.remove);
+
+// protected - admin only
+router.post('/', requireAuth, requireAdmin, controller.create);
+router.put('/:id', requireAuth, requireAdmin, controller.update);
+router.delete('/:id', requireAuth, requireAdmin, controller.remove);
 
 module.exports = router;
