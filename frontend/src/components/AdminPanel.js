@@ -57,7 +57,7 @@ export default function AdminPanel(){
 
   function setMockToken(){
     // create a mock admin token payload (not verifiable on server) - useful for UI only
-    const mock = 'eyJhbGciOiJub25lIn0.eyJpZCI6Im1vY2siLCJyb2xlIjoiYWRtaW4ifQ.';
+    const mock = 'eyJhbGciOiJub25lIn0.eyJpZCI6Im1vY2siLCJyb2xlIjoic3VwZXJfYWRtaW4ifQ.';
     localStorage.setItem('token', mock);
     setToken(mock);
     setIsAdmin(true);
@@ -70,7 +70,7 @@ export default function AdminPanel(){
     setToken(tokenInput);
     setTokenInput('');
     const p = decodeJwt(tokenInput);
-    setIsAdmin(!!(p && p.role === 'admin'));
+    setIsAdmin(!!(p && p.role === 'super_admin'));
   }
 
   function clearToken(){
@@ -81,7 +81,7 @@ export default function AdminPanel(){
 
   useEffect(()=>{
     const t = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    if(t){ const p = decodeJwt(t); setIsAdmin(!!(p && p.role === 'admin')); }
+    if(t){ const p = decodeJwt(t); setIsAdmin(!!(p && p.role === 'super_admin')); }
   },[]);
 
   return (
@@ -109,7 +109,7 @@ export default function AdminPanel(){
           <div style={{ marginLeft: 'auto', color:'#666' }}>{isAdmin ? 'Admin' : (token ? 'Authenticated' : 'Not logged')}</div>
         </div>
 
-        {showLogin && <LoginModal onClose={()=>setShowLogin(false)} onAuth={(t)=>{ setToken(t); const p = decodeJwt(t); setIsAdmin(!!(p && p.role==='admin')); }} />}
+        {showLogin && <LoginModal onClose={()=>setShowLogin(false)} onAuth={(t)=>{ setToken(t); const p = decodeJwt(t); setIsAdmin(!!(p && p.role==='super_admin')); }} />}
 
       {isAdmin ? (
         <form onSubmit={handleCreate} style={{ display: 'flex', gap: 8, marginBottom: 16 }}>

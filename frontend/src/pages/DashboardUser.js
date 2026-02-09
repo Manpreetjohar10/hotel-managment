@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import decodeJwt from '../utils/decodeJwt';
+﻿import React, { useState, useEffect } from 'react';
+import { fetchWithAuth } from '../api';
 
 export default function DashboardUser() {
   const [user, setUser] = useState(null);
@@ -7,63 +7,87 @@ export default function DashboardUser() {
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decoded = decodeJwt(token);
-        setUser(decoded);
-        setFormData({
-          name: decoded.name || '',
-          email: decoded.email || '',
-          phone: '',
-          address: ''
-        });
-      } catch (err) {
-        console.error('Failed to decode token:', err);
-      }
-    }
-    
-    // Mock bookings data
-    setBookings([
-      {
-        _id: '1',
-        hotelId: 'hotel1',
-        hotelName: 'Grand Plaza',
-        checkIn: '2026-02-15',
-        checkOut: '2026-02-18',
-        status: 'Booked',
-        price: 450
-      },
-      {
-        _id: '2',
-        hotelId: 'hotel2',
-        hotelName: 'Sea View Resort',
-        checkIn: '2026-03-10',
-        checkOut: '2026-03-15',
-        status: 'Successful',
-        price: 1100
-      }
-    ]);
-    setLoading(false);
+    loadProfile();
+    loadBookings();
   }, []);
 
-  const handleUpdateProfile = (e) => {
-    e.preventDefault();
-    window.dispatchEvent(new CustomEvent('toast', { 
-      detail: { message: 'Profile updated successfully!', type: 'success' } 
-    }));
-    setEditMode(false);
+  const loadProfile = async () => {
+    try {
+      const res = await fetchWithAuth('/api/users/me');
+      const data = await res.json();
+      if (res.ok) {
+        setUser(data);
+        setFormData({
+          name: data.name || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          address: data.address || ''
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleCancelBooking = (bookingId) => {
-    setBookings(bookings.map(b => 
-      b._id === bookingId ? { ...b, status: 'Cancelled' } : b
-    ));
-    window.dispatchEvent(new CustomEvent('toast', { 
-      detail: { message: 'Booking cancelled successfully', type: 'success' } 
-    }));
+  const loadBookings = async () => {
+    try {
+      const res = await fetchWithAuth('/api/bookings/my');
+      const data = await res.json();
+      if (res.ok) setBookings(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const res = await fetchWithAuth('/api/users/me', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          address: formData.address
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Update failed');
+      setUser(data);
+      window.dispatchEvent(new CustomEvent('toast', {
+        detail: { message: 'Profile updated successfully!', type: 'success' }
+      }));
+      setEditMode(false);
+    } catch (err) {
+      window.dispatchEvent(new CustomEvent('toast', {
+        detail: { message: err.message || 'Update failed', type: 'error' }
+      }));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancelBooking = async (bookingId) => {
+    try {
+      const res = await fetchWithAuth(`/api/bookings/${bookingId}/cancel`, {
+        method: 'PATCH'
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Cancel failed');
+      setBookings(bookings.map(b => (b._id === bookingId ? data : b)));
+      window.dispatchEvent(new CustomEvent('toast', {
+        detail: { message: 'Booking cancelled successfully', type: 'success' }
+      }));
+    } catch (err) {
+      window.dispatchEvent(new CustomEvent('toast', {
+        detail: { message: err.message || 'Cancel failed', type: 'error' }
+      }));
+    }
   };
 
   if (loading) return <div className="loading">Loading dashboard...</div>;
@@ -77,11 +101,10 @@ export default function DashboardUser() {
       </div>
 
       <div className="dashboard-grid">
-        {/* Profile Section */}
         <section className="profile-section">
           <div className="section-header">
-            <h2>👤 My Profile</h2>
-            <button 
+            <h2>My Profile</h2>
+            <button
               className="btn btn-secondary"
               onClick={() => setEditMode(!editMode)}
             >
@@ -124,33 +147,34 @@ export default function DashboardUser() {
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 />
               </div>
-              <button type="submit" className="btn btn-primary">Save Changes</button>
+              <button type="submit" className="btn btn-primary" disabled={saving}>
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
             </form>
           ) : (
             <div className="profile-info">
               <p><strong>Name:</strong> {user.name}</p>
               <p><strong>Email:</strong> {user.email}</p>
-              <p><strong>Phone:</strong> {formData.phone || 'Not provided'}</p>
-              <p><strong>Address:</strong> {formData.address || 'Not provided'}</p>
-              <p><strong>Member Since:</strong> {new Date(user.iat * 1000).toLocaleDateString()}</p>
+              <p><strong>Phone:</strong> {user.phone || 'Not provided'}</p>
+              <p><strong>Address:</strong> {user.address || 'Not provided'}</p>
+              <p><strong>Member Since:</strong> {new Date(user.createdAt).toLocaleDateString()}</p>
             </div>
           )}
         </section>
 
-        {/* Bookings Section */}
         <section className="bookings-section">
           <div className="section-header">
-            <h2>📅 My Bookings</h2>
+            <h2>My Bookings</h2>
             <span className="booking-count">{bookings.length} booking(s)</span>
           </div>
 
           {bookings.length > 0 ? (
             <div className="bookings-list">
               {bookings.map(booking => (
-                <div key={booking._id} className={`booking-card status-${booking.status.toLowerCase()}`}>
+                <div key={booking._id} className={`booking-card status-${(booking.status || '').toLowerCase()}`}>
                   <div className="booking-header">
-                    <h3>{booking.hotelName}</h3>
-                    <span className={`status-badge ${booking.status.toLowerCase()}`}>
+                    <h3>{booking.hotel?.name || 'Hotel'}</h3>
+                    <span className={`status-badge ${(booking.status || '').toLowerCase()}`}>
                       {booking.status}
                     </span>
                   </div>
@@ -161,7 +185,10 @@ export default function DashboardUser() {
                     <p>
                       <strong>Check-out:</strong> {new Date(booking.checkOut).toLocaleDateString()}
                     </p>
-                    <p><strong>Price:</strong> ${booking.price}</p>
+                    <p><strong>Guests:</strong> {booking.guests}</p>
+                    {booking.hotel?.price && (
+                      <p><strong>Price:</strong> ${booking.hotel.price}</p>
+                    )}
                   </div>
                   {booking.status === 'Booked' && (
                     <button

@@ -1,17 +1,33 @@
 const Blog = require('../models/Blog');
 
+const parseBoolean = (value, fallback = false) => {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') return value.toLowerCase() === 'true';
+  return fallback;
+};
+
+const ensureAdmin = (req, res) => {
+  if (!req.user || req.user.role !== 'super_admin') {
+    res.status(403).json({ message: 'Not authorized' });
+    return false;
+  }
+  return true;
+};
+
 // Create Blog (Admin Only)
 exports.createBlog = async (req, res) => {
   try {
-    const { title, excerpt, content, image, category } = req.body;
+    if (!ensureAdmin(req, res)) return;
+    const { title, excerpt, content, image, category, published } = req.body;
+    const imagePath = req.file ? `/uploads/blogs/${req.file.filename}` : image;
     const blog = new Blog({
       title,
       excerpt,
       content,
-      image,
+      image: imagePath,
       category,
       author: req.user.id,
-      published: true
+      published: parseBoolean(published, false)
     });
     await blog.save();
     res.status(201).json(blog);
@@ -32,12 +48,30 @@ exports.getAllBlogs = async (req, res) => {
   }
 };
 
+// Get All Blogs (Admin)
+exports.getAllBlogsAdmin = async (req, res) => {
+  try {
+    if (!ensureAdmin(req, res)) return;
+    const status = req.query.status;
+    const filter = {};
+    if (status === 'published') filter.published = true;
+    if (status === 'draft') filter.published = false;
+    const blogs = await Blog.find(filter)
+      .populate('author', 'name email')
+      .sort({ createdAt: -1 });
+    res.json(blogs);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // Get Single Blog (Public)
 exports.getBlogById = async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id)
       .populate('author', 'name email');
     if (!blog) return res.status(404).json({ message: 'Blog not found' });
+    if (!blog.published) return res.status(404).json({ message: 'Blog not found' });
     res.json(blog);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -50,12 +84,18 @@ exports.updateBlog = async (req, res) => {
     const blog = await Blog.findById(req.params.id);
     if (!blog) return res.status(404).json({ message: 'Blog not found' });
     
-    // Check if user is super_admin
-    if (req.user.role !== 'super_admin') {
-      return res.status(403).json({ message: 'Not authorized' });
-    }
+    if (!ensureAdmin(req, res)) return;
 
-    Object.assign(blog, req.body);
+    const { title, excerpt, content, image, category, published } = req.body;
+    const imagePath = req.file ? `/uploads/blogs/${req.file.filename}` : image;
+
+    if (title !== undefined) blog.title = title;
+    if (excerpt !== undefined) blog.excerpt = excerpt;
+    if (content !== undefined) blog.content = content;
+    if (category !== undefined) blog.category = category;
+    if (imagePath !== undefined) blog.image = imagePath;
+    if (published !== undefined) blog.published = parseBoolean(published, blog.published);
+
     blog.updatedAt = Date.now();
     await blog.save();
     res.json(blog);
@@ -70,10 +110,7 @@ exports.deleteBlog = async (req, res) => {
     const blog = await Blog.findById(req.params.id);
     if (!blog) return res.status(404).json({ message: 'Blog not found' });
     
-    // Check if user is super_admin
-    if (req.user.role !== 'super_admin') {
-      return res.status(403).json({ message: 'Not authorized' });
-    }
+    if (!ensureAdmin(req, res)) return;
 
     await Blog.deleteOne({ _id: req.params.id });
     res.json({ message: 'Blog deleted' });

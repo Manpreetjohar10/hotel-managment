@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
 export default function BlogDetail() {
+  const blogFallback = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520"><rect width="100%" height="100%" fill="#eef2f7"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#8a94a6" font-family="Arial" font-size="22">Blog Image</text></svg>'
+  );
   const { id } = useParams();
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,7 +34,7 @@ export default function BlogDetail() {
   return (
     <div className="blog-detail-page">
       <div className="blog-detail-container">
-        <Link to="/blogs" className="back-link">← Back to Blogs</Link>
+        <Link to="/blogs" className="blog-back-link">Back to Blogs</Link>
         
         <article className="blog-detail">
           <div className="blog-detail-header">
@@ -44,7 +47,11 @@ export default function BlogDetail() {
           </div>
 
           <div className="blog-detail-image">
-            <img src={blog.image} alt={blog.title} />
+            <img
+              src={blog.image || blogFallback}
+              alt={blog.title}
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = blogFallback; }}
+            />
           </div>
 
           <div className="blog-detail-content">

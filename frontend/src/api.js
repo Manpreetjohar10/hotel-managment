@@ -3,7 +3,10 @@ export async function fetchWithAuth(url, opts = {}){
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   const headers = Object.assign({}, opts.headers || {});
   if(token) headers['Authorization'] = `Bearer ${token}`;
-  headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+  const isFormData = typeof FormData !== 'undefined' && opts.body instanceof FormData;
+  if(!isFormData){
+    headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+  }
   const res = await fetch(url, Object.assign({}, opts, { headers }));
   if(res.status === 401){
     // auto logout

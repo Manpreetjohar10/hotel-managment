@@ -1,4 +1,5 @@
 /* Animations */
+*{ box-sizing: border-box }
 @keyframes fadeIn{ 
   from { opacity: 0 } 
   to { opacity: 1 } 
@@ -13,16 +14,21 @@
 }
 
 /* Global layout */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
 :root{
-  --accent:#0b5fff;
-  --muted:#666;
+  --accent:#0f4c81;
+  --accent-2:#0b3356;
+  --muted:#5f6b7a;
   --card-bg:#fff;
-  --surface:#f7f7fb;
+  --surface:#f4f6f9;
+  --surface-2:#eef2f7;
+  --gold:#c9a227;
 }
-body{ font-family: Inter, Roboto, Arial, sans-serif; background: var(--surface); margin:0; color:#111 }
+body{ font-family: 'Manrope', 'Segoe UI', sans-serif; background: var(--surface); margin:0; color:#0f172a }
 .header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; animation: slideUp 0.4s ease-out }
 .header .title{ font-size:28px }
-.app-root{ max-width:980px; margin:0 auto; padding:28px }
+.app-root{ max-width:1140px; margin:0 auto; padding:28px }
 h1{ margin:0 0 18px 0; animation: slideUp 0.4s ease-out }
 
 .hotel-card{ background:var(--card-bg); border:1px solid #e6e6ef; padding:14px; border-radius:6px; animation: slideUp 0.4s ease-out; transition: all 160ms ease }
@@ -30,10 +36,11 @@ h1{ margin:0 0 18px 0; animation: slideUp 0.4s ease-out }
 .hotel-list > * + * { margin-top:12px }
 .hotel-meta{ color:var(--muted); font-size:13px }
 .controls{ display:flex; gap:10px; align-items:center; margin-bottom:14px }
-.controls input, .controls select{ padding:8px 10px; border:1px solid #ddd; border-radius:6px; transition: all 160ms ease }
+.controls input, .controls select{ padding:10px 12px; border:1px solid #d6dbe6; border-radius:8px; transition: all 160ms ease; background: #fff }
 .controls input:focus, .controls select:focus{ outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(11, 95, 255, 0.1) }
-.btn{ background:var(--accent); color:#fff; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; transition: all 160ms ease; font-weight: 500 }
-.btn:hover{ transform: translateY(-1px); box-shadow: 0 4px 12px rgba(11, 95, 255, 0.2) }
+.btn{ background:var(--accent); color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; transition: all 200ms ease; font-weight: 600; letter-spacing: 0.2px; box-shadow: 0 8px 18px rgba(15, 76, 129, 0.18) }
+.btn:hover{ transform: translateY(-2px); box-shadow: 0 12px 24px rgba(15, 76, 129, 0.24) }
+.btn:hover{ transform: translateY(-2px); box-shadow: 0 12px 24px rgba(15, 76, 129, 0.24) }
 .btn:active{ transform: translateY(0); box-shadow: 0 1px 3px rgba(11, 95, 255, 0.12) }
 .btn.ghost{ background:transparent; color:var(--accent); border:1px solid #d6dbff; transition: all 160ms ease }
 .btn.ghost:hover{ background: rgba(11, 95, 255, 0.05); border-color: var(--accent) }
@@ -43,9 +50,9 @@ h1{ margin:0 0 18px 0; animation: slideUp 0.4s ease-out }
 .hotel-card .flex-row{ display:flex; align-items:center; justify-content:space-between }
 
 /* grid layout */
-.hotel-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:14px }
-.grid-card{ display:grid; grid-template-columns: 140px 1fr auto; gap:12px; align-items:center; padding:12px; animation: slideUp 0.4s ease-out; transition: all 160ms ease; border-radius: 6px }
-.grid-card:hover{ transform: translateY(-2px); box-shadow: 0 6px 18px rgba(11, 95, 255, 0.08) }
+.hotel-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:16px }
+.grid-card{ display:grid; grid-template-columns: 140px 1fr auto; gap:16px; align-items:center; padding:16px; animation: slideUp 0.4s ease-out; transition: all 160ms ease; border-radius: 10px; background: #fff; border: 1px solid #e6e6ef }
+.grid-card:hover{ transform: translateY(-2px); box-shadow: 0 10px 24px rgba(15, 76, 129, 0.12) }
 .grid-thumb img.hotel-image{ width:140px; height:100px; object-fit:cover; border-radius:6px; transition: transform 200ms ease }
 .grid-card:hover .grid-thumb img.hotel-image{ transform: scale(1.05) }
 .grid-body{ padding-right:8px }
@@ -75,11 +82,12 @@ input[type='text']:focus, input[type='email']:focus, input[type='date']:focus, i
 
 /* Navbar */
 .app-container{ display: flex; flex-direction: column; min-height: 100vh; background: var(--surface) }
-.navbar{ background: linear-gradient(135deg, var(--accent) 0%, #084fb8 100%); color: white; padding: 14px 0; box-shadow: 0 2px 8px rgba(11, 95, 255, 0.15); position: sticky; top: 0; z-index: 1000; animation: slideDown 0.3s ease-out }
+.navbar{ background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%); color: white; padding: 14px 0; box-shadow: 0 2px 8px rgba(15, 76, 129, 0.2); position: sticky; top: 0; z-index: 9999; animation: slideDown 0.3s ease-out; pointer-events: auto }
+.navbar, .navbar-container, .navbar-actions, .user-menu { position: relative; z-index: 99999 }
 @keyframes slideDown{ from { transform: translateY(-100%); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
-.navbar-container{ max-width: 980px; margin: 0 auto; padding: 0 28px; display: flex; justify-content: space-between; align-items: center }
+.navbar-container{ max-width: 1140px; margin: 0 auto; padding: 0 28px; display: flex; justify-content: space-between; align-items: center }
 .navbar-brand{ display: flex; flex-direction: column; gap: 2px }
-.navbar-title{ margin: 0; font-size: 24px; font-weight: 600 }
+.navbar-title{ margin: 0; font-size: 24px; font-weight: 700; font-family: 'Playfair Display', serif; letter-spacing: 0.3px }
 .navbar-subtitle{ margin: 0; font-size: 12px; opacity: 0.9; font-weight: 400 }
 .navbar-actions{ display: flex; gap: 12px; align-items: center }
 .btn-primary{ background: white; color: var(--accent); font-weight: 600 }
@@ -89,8 +97,9 @@ input[type='text']:focus, input[type='email']:focus, input[type='date']:focus, i
 .user-btn{ background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid rgba(255, 255, 255, 0.3); font-weight: 500; position: relative }
 .user-btn:hover{ background: rgba(255, 255, 255, 0.3) }
 .user-menu{ position: relative }
-.dropdown-menu{ position: absolute; top: 100%; right: 0; background: white; border: 1px solid #e6e6ef; border-radius: 6px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); min-width: 200px; margin-top: 8px; overflow: hidden; animation: slideUp 0.2s ease-out }
-.dropdown-item{ padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f0f0f6; color: #111; transition: all 160ms ease; font-size: 13px }
+.user-menu{ position: relative }
+.dropdown-menu{ position: absolute; top: calc(100% + 8px); right: 0; background: #fff; border: 1px solid #e6e6ef; border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); min-width: 220px; overflow: hidden; animation: slideUp 0.2s ease-out; z-index: 100000; pointer-events: auto }
+.dropdown-item{ display: block; width: 100%; padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f0f0f6; color: #0f172a; background: #fff; transition: all 160ms ease; font-size: 13px; text-decoration: none; text-align: left; pointer-events: auto }
 .dropdown-item:last-child{ border-bottom: none }
 .dropdown-item:hover{ background: #f7f7fb }
 .dropdown-item.disabled{ color: var(--muted); cursor: default; background: transparent }

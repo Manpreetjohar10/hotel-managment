@@ -15,19 +15,45 @@ export default function ImageCarousel({ images = [] }){
   },[fullscreen, images.length]);
 
   if(!images || images.length === 0) return null;
-  const prev = () => setIdx(i => (i - 1 + images.length) % images.length);
-  const next = () => setIdx(i => (i + 1) % images.length);
+  const normalized = images.map((src) => {
+    if (!src) return '';
+    const cleaned = String(src).replace(/\\/g, '/');
+    if (cleaned.startsWith('http') || cleaned.startsWith('data:')) return cleaned;
+    if (cleaned.startsWith('/')) return cleaned;
+    return `/${cleaned}`;
+  }).filter(Boolean);
+  if (!normalized.length) return null;
+  const prev = () => setIdx(i => (i - 1 + normalized.length) % normalized.length);
+  const next = () => setIdx(i => (i + 1) % normalized.length);
 
   return (
-    <div>
-      <div style={{ display:'flex', gap:12, alignItems:'center' }}>
-        <button onClick={prev} className="btn ghost">◀</button>
-        <img src={images[idx]} alt="hotel" style={{ width: '100%', maxHeight: 360, objectFit: 'cover', borderRadius:8, cursor:'zoom-in' }} onClick={()=>setFullscreen(true)} />
-        <button onClick={next} className="btn ghost">▶</button>
+    <div className="carousel">
+      <div className="carousel-main">
+        <button onClick={prev} className="carousel-nav prev" aria-label="Previous image">Prev</button>
+        <div className="carousel-image-wrap" onClick={()=>setFullscreen(true)}>
+          <img
+            src={normalized[idx]}
+            alt="hotel"
+            className="carousel-image"
+            onError={(e) => { e.currentTarget.src = '/hotels/images/img1.jpg'; }}
+          />
+        </div>
+        <button onClick={next} className="carousel-nav next" aria-label="Next image">Next</button>
       </div>
-      <div style={{ display:'flex', gap:6, justifyContent:'center', marginTop:8 }}>
-        {images.map((im,i)=> (
-          <button key={i} onClick={()=>setIdx(i)} style={{ width:10, height:10, borderRadius:10, border:'none', background: i===idx ? '#0b5fff' : '#ddd', cursor:'pointer' }} aria-label={`Go to image ${i+1}`} />
+      <div className="carousel-dots">
+        {normalized.map((im,i)=> (
+          <button key={i} onClick={()=>setIdx(i)} className={`carousel-dot ${i===idx ? 'active' : ''}`} aria-label={`Go to image ${i+1}`} />
+        ))}
+      </div>
+      <div className="carousel-thumbs">
+        {normalized.map((im,i)=> (
+          <button key={im} onClick={()=>setIdx(i)} className={`carousel-thumb ${i===idx ? 'active' : ''}`} aria-label={`Thumbnail ${i+1}`}>
+            <img
+              src={im}
+              alt={`thumb ${i+1}`}
+              onError={(e) => { e.currentTarget.src = '/hotels/images/img1.jpg'; }}
+            />
+          </button>
         ))}
       </div>
 
@@ -35,11 +61,11 @@ export default function ImageCarousel({ images = [] }){
         <div className="modal-backdrop" onMouseDown={()=>setFullscreen(false)}>
           <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center' }} onMouseDown={e=>e.stopPropagation()}>
             <div style={{ maxWidth:'95%', maxHeight:'95%' }}>
-              <img src={images[idx]} alt="fullscreen" style={{ width:'100%', height:'auto', objectFit:'contain', borderRadius:6 }} />
+              <img src={normalized[idx]} alt="fullscreen" style={{ width:'100%', height:'auto', objectFit:'contain', borderRadius:6 }} />
               <div style={{ display:'flex', justifyContent:'center', gap:8, marginTop:8 }}>
-                <button className="btn ghost" onClick={()=>setIdx(i => (i - 1 + images.length) % images.length)}>Prev</button>
+                <button className="btn ghost" onClick={()=>setIdx(i => (i - 1 + normalized.length) % normalized.length)}>Prev</button>
                 <button className="btn" onClick={()=>setFullscreen(false)}>Close</button>
-                <button className="btn ghost" onClick={()=>setIdx(i => (i + 1) % images.length)}>Next</button>
+                <button className="btn ghost" onClick={()=>setIdx(i => (i + 1) % normalized.length)}>Next</button>
               </div>
             </div>
           </div>

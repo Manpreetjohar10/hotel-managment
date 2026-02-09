@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { fetchWithAuth } from '../api';
+import decodeJwt from '../utils/decodeJwt';
 
-export default function BookingForm({ hotelId, onBooked, availableRooms }){
-  const [form, setForm] = useState({ name:'', email:'', checkIn:'', checkOut:'', guests:1 });
+export default function BookingForm({ hotelId, onBooked, availableRooms, initialCheckIn = '', initialCheckOut = '', initialGuests = 1 }){
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const decoded = token ? decodeJwt(token) : null;
+  const [form, setForm] = useState({
+    name: decoded?.name || '',
+    email: decoded?.email || '',
+    checkIn: initialCheckIn,
+    checkOut: initialCheckOut,
+    guests: initialGuests || 1
+  });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -40,33 +49,37 @@ export default function BookingForm({ hotelId, onBooked, availableRooms }){
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="booking-form">
         <div className="row">
           <div className="col">
+            <label>Name</label>
             <input placeholder="Your name" value={form.name} onChange={e=>setForm({...form, name:e.target.value})} />
-            {errors.name && <div style={{ color:'crimson', fontSize:13 }}>{errors.name}</div>}
+            {errors.name && <div className="form-error">{errors.name}</div>}
           </div>
           <div className="col">
+            <label>Email</label>
             <input type="email" placeholder="Email" value={form.email} onChange={e=>setForm({...form, email:e.target.value})} />
-            {errors.email && <div style={{ color:'crimson', fontSize:13 }}>{errors.email}</div>}
+            {errors.email && <div className="form-error">{errors.email}</div>}
           </div>
         </div>
-        <div className="row" style={{ marginTop:8 }}>
+        <div className="row">
           <div className="col">
             <label>Check-in</label>
             <input type="date" value={form.checkIn} onChange={e=>setForm({...form, checkIn:e.target.value})} />
-            {errors.checkIn && <div style={{ color:'crimson', fontSize:13 }}>{errors.checkIn}</div>}
+            {errors.checkIn && <div className="form-error">{errors.checkIn}</div>}
           </div>
           <div className="col">
             <label>Check-out</label>
             <input type="date" value={form.checkOut} onChange={e=>setForm({...form, checkOut:e.target.value})} />
-            {errors.checkOut && <div style={{ color:'crimson', fontSize:13 }}>{errors.checkOut}</div>}
+            {errors.checkOut && <div className="form-error">{errors.checkOut}</div>}
           </div>
         </div>
-        <div style={{ marginTop:8 }}>
-          <label>Guests</label>
-          <input type="number" min="1" value={form.guests} onChange={e=>setForm({...form, guests:Number(e.target.value)})} style={{ width:80, marginLeft:8 }} />
-          {errors.guests && <div style={{ color:'crimson', fontSize:13 }}>{errors.guests}</div>}
+        <div className="row">
+          <div className="col">
+            <label>Guests</label>
+            <input type="number" min="1" value={form.guests} onChange={e=>setForm({...form, guests:Number(e.target.value)})} />
+            {errors.guests && <div className="form-error">{errors.guests}</div>}
+          </div>
         </div>
         <div className="form-actions">
           <button className="btn" type="submit" disabled={loading}>{loading ? 'Booking...' : 'Book Now'}</button>
