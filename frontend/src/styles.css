@@ -17,13 +17,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
 
 :root{
-  --accent:#0f4c81;
-  --accent-2:#0b3356;
+  --accent:#0c3f6b;
+  --accent-2:#082a47;
   --muted:#5f6b7a;
   --card-bg:#fff;
-  --surface:#f4f6f9;
+  --surface:#f5f4f2;
   --surface-2:#eef2f7;
   --gold:#c9a227;
+  --gold-soft:#f3e6b7;
+  --ink:#0f172a;
 }
 body{ font-family: 'Manrope', 'Segoe UI', sans-serif; background: var(--surface); margin:0; color:#0f172a }
 .header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; animation: slideUp 0.4s ease-out }
@@ -38,7 +40,7 @@ h1{ margin:0 0 18px 0; animation: slideUp 0.4s ease-out }
 .controls{ display:flex; gap:10px; align-items:center; margin-bottom:14px }
 .controls input, .controls select{ padding:10px 12px; border:1px solid #d6dbe6; border-radius:8px; transition: all 160ms ease; background: #fff }
 .controls input:focus, .controls select:focus{ outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(11, 95, 255, 0.1) }
-.btn{ background:var(--accent); color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; transition: all 200ms ease; font-weight: 600; letter-spacing: 0.2px; box-shadow: 0 8px 18px rgba(15, 76, 129, 0.18) }
+.btn{ background:var(--accent); color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; transition: all 200ms ease; font-weight: 600; letter-spacing: 0.2px; box-shadow: 0 12px 26px rgba(12, 63, 107, 0.22) }
 .btn:hover{ transform: translateY(-2px); box-shadow: 0 12px 24px rgba(15, 76, 129, 0.24) }
 .btn:hover{ transform: translateY(-2px); box-shadow: 0 12px 24px rgba(15, 76, 129, 0.24) }
 .btn:active{ transform: translateY(0); box-shadow: 0 1px 3px rgba(11, 95, 255, 0.12) }
