@@ -29,6 +29,20 @@ export default function Home() {
     { title: 'Family Package', badge: 'New', desc: 'Kids stay free in select hotels.', cta: 'Explore offer' }
   ];
 
+  const collections = [
+    { title: 'Executive Towers', desc: 'Premium business floors with lounge access.', tag: 'Business' },
+    { title: 'Seaview Villas', desc: 'Panoramic ocean views and private decks.', tag: 'Resort' },
+    { title: 'Heritage Suites', desc: 'Classic architecture with modern comforts.', tag: 'Luxury' }
+  ];
+
+  const faqs = [
+    { q: 'Can I cancel or reschedule a booking?', a: 'Yes. Most stays support free cancellation up to 48 hours before check-in. Policies are shown before you confirm.' },
+    { q: 'Do you offer pay-at-property options?', a: 'Yes. Many properties allow payment at check-in. Look for the Pay at Property badge.' },
+    { q: 'How do I change guest details?', a: 'Open your dashboard, select the booking, and use Manage Booking to update guest details.' },
+    { q: 'Are taxes and fees included in the price?', a: 'We show a transparent price breakdown before you confirm. Final totals include applicable taxes and fees.' }
+  ];
+  const [openFaq, setOpenFaq] = useState(0);
+
   return (
     <div className="home-page">
       <section className="hero hero-interactive hero-luxe">
@@ -183,6 +197,23 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="collections">
+        <div className="section-header">
+          <h2 className="section-title">Signature collections</h2>
+          <Link to="/hotels" className="btn btn-secondary">View collection</Link>
+        </div>
+        <div className="collection-grid">
+          {collections.map((c) => (
+            <div key={c.title} className="collection-card">
+              <div className="collection-tag">{c.tag}</div>
+              <h3>{c.title}</h3>
+              <p>{c.desc}</p>
+              <Link to="/hotels" className="btn small">Explore</Link>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="features">
         <h2>Why Guests Choose MERN Hotel</h2>
         <div className="features-grid">
@@ -258,6 +289,29 @@ export default function Home() {
         <Link to="/hotels" className="btn btn-primary">
           Start Booking
         </Link>
+      </section>
+
+      <section className="faq">
+        <div className="section-header">
+          <h2 className="section-title">Frequently asked questions</h2>
+          <span className="text-muted">Everything you need to know before booking</span>
+        </div>
+        <div className="faq-list">
+          {faqs.map((f, i) => (
+            <button
+              key={f.q}
+              type="button"
+              className={`faq-item ${openFaq === i ? 'open' : ''}`}
+              onClick={() => setOpenFaq(openFaq === i ? -1 : i)}
+            >
+              <div className="faq-q">
+                <span>{f.q}</span>
+                <span className="faq-toggle">{openFaq === i ? '-' : '+'}</span>
+              </div>
+              {openFaq === i && <div className="faq-a">{f.a}</div>}
+            </button>
+          ))}
+        </div>
       </section>
     </div>
   );
